@@ -12,7 +12,12 @@ const filename = ext => isDev ? `[name].${ext}` : `[name].[hash].${ext}`;
 const babelOptions = (preset) => {
     const opts = {
         presets: [
-            '@babel/preset-env'   
+            "@babel/preset-env",
+            ["@babel/preset-react"]
+        ],
+        plugins: [
+            "@babel/proposal-class-properties",
+            "@babel/proposal-object-rest-spread"
         ]
     }
 
@@ -40,7 +45,7 @@ module.exports = {
     mode: 'development',
     context: path.resolve(__dirname, 'src'),
     entry: {
-        index: ['@babel/polyfill', './index.jsx']
+        index: ['./index.tsx']
     },
     devServer: {
         hot: true,
@@ -50,6 +55,9 @@ module.exports = {
         filename: filename('js'),
         path: path.resolve(__dirname, 'dist'),
         clean: true,
+    },
+    resolve: {
+        extensions: ['.ts', '.tsx', '.js'],
     },
     plugins: [
         new HTMLWebpackPlugin({
@@ -89,16 +97,13 @@ module.exports = {
                 exclude: /\.module.(s(a|c)ss)$/
             },
             {
-                test: /\.jsx?$/,
+                test: /\.tsx?$/,
                 use: {
                     loader:'babel-loader',
-                    options: babelOptions('@babel/preset-react')
+                    // options: babelOptions('@babel/preset-typescript')
                 },
                 exclude: /node_modules/,
             }
         ]
-    },
-    resolve: {
-        extensions: ['.jsx', '.js'],
     },
 }
