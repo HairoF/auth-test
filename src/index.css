@@ -30,6 +30,7 @@ select {
 ul[class],
 ol[class] {
   list-style: none;
+  margin: 0;
 }
 a {
     text-decoration: none;
@@ -42,4 +43,5 @@ header, main, footer, nav {
 .container {
     max-width: 1000px;
     margin:  0 auto;
+
 }

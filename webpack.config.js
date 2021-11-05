@@ -13,7 +13,7 @@ const babelOptions = (preset) => {
     const opts = {
         presets: [
             "@babel/preset-env",
-            ["@babel/preset-react"]
+            "@babel/preset-react"
         ],
         plugins: [
             "@babel/proposal-class-properties",
@@ -45,19 +45,20 @@ module.exports = {
     mode: 'development',
     context: path.resolve(__dirname, 'src'),
     entry: {
-        index: ['./index.tsx']
+        index: ['@babel/polyfill','./index.tsx']
     },
     devServer: {
         hot: true,
         static:  './dist'
     },
+    devtool: 'inline-source-map',
     output: {
         filename: filename('js'),
         path: path.resolve(__dirname, 'dist'),
         clean: true,
     },
     resolve: {
-        extensions: ['.ts', '.tsx', '.js'],
+        extensions: ['.ts', '.tsx', '.js', '.jsx'],
     },
     plugins: [
         new HTMLWebpackPlugin({
@@ -100,7 +101,7 @@ module.exports = {
                 test: /\.tsx?$/,
                 use: {
                     loader:'babel-loader',
-                    // options: babelOptions('@babel/preset-typescript')
+                    options: babelOptions('@babel/preset-typescript')
                 },
                 exclude: /node_modules/,
             }
