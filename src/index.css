@@ -1,3 +1,5 @@
+@import "~normalize.css";
+
 *, *::before, *::after {
     margin: 0;
     padding: 0;
@@ -5,8 +7,7 @@
 }
 
 body {
-
-    background: rgb(37, 35, 35);
+    background: rgb(255, 252, 252);
     min-height: 100vh;
     scroll-behavior: smooth;
     text-rendering: optimizeSpeed;
@@ -34,7 +35,7 @@ ol[class] {
 }
 a {
     text-decoration: none;
-    color:white;
+    /* color:white; */
 }
 header, main, footer, nav {
     display: block;

@@ -1,8 +1,10 @@
 import * as React from 'react';
-import  {useState, useEffect, useContext} from 'react';
+import  {useEffect, useContext} from 'react';
 import {BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 
 import './app.css';
+import styled from 'styled-components';
+
 import { Layout } from "antd";
 const { Header: AntHeader,  Content } = Layout;
 
@@ -20,19 +22,18 @@ function App() {
     const data = toJS(store.user);
     
     useEffect( () => {
+
         if(localStorage.getItem('token')) {
             store.checkAuth()
         }
     },[])
 
     useEffect(() => {
-        console.log(store.isAuth, store.user);
 
-        return () => {
-            if(localStorage.getItem('token')) {
-                store.checkAuth()
-            }
+        if(localStorage.getItem('token')) {
+            store.checkAuth()
         }
+
     },[store.isAuth])
 
 
@@ -40,17 +41,15 @@ function App() {
     return (
         <Router>
             <AntHeader >
-            <Header isAuth={store.isAuth}/>
+            <Header isAuth={store.isAuth} onLogOut={store.logout} username={store.user.username}/>
             </AntHeader>
             <Content style={{height:'100vh'}}>
                 <Switch>
                     <Route path="/" exact>
-                        <h1 
-                            style={{margin:'0 auto', textAlign:'center'}}
-                        >
+                        <h1 style={{margin:'0 auto', textAlign:'center'}}>
                             About
-                            <p>{store.isAuth ? `Сейчас авторизован ${store.user.username}` : 'Авторизуйтесь'}</p>
                         </h1>
+                        {!store.isAuth ? <P>Авторизуйтесь</P> : null}
                         {store.isAuth ? <About data={data}/> : null}
                     </Route>
                     <Route path="/register/" exact>
@@ -70,3 +69,13 @@ function App() {
 }
 
 export default observer(App);
+
+const P = styled.p`
+    width: 100px;
+    text-align:center;
+    margin: 0 auto;
+    text-shadow: 1px 1px 1px red;
+    border-bottom: 1px solid grey;
+    border-top: 1px solid grey;
+
+`;

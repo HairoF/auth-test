@@ -13,4 +13,4 @@ interface RegisterResponse {
     message?: string
     error?: string
 }
-export {AuthResponse, AboutResponse, RegisterResponse, }
+export {AuthResponse, AboutResponse, RegisterResponse}

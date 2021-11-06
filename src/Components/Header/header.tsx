@@ -1,17 +1,24 @@
 import * as React from 'react';
 import {Link} from 'react-router-dom';
-import {Button} from 'antd';
+
+import {Button, Avatar} from 'antd';
 import styled from 'styled-components';
 
+import { observer } from 'mobx-react-lite';
+
+import AuthHeader from './auth-header';
+
 interface ISAuth {
-    isAuth: boolean
+    isAuth: boolean,
+    onLogOut: () => void,
+    username: string
 }
 const styles = {
     backgroundColor:'steelblue',
     color: '#fff'
 }
 
-export default function Header({isAuth}:ISAuth) {
+function Header({isAuth, onLogOut, username}:ISAuth) {
 
 
     return(
@@ -32,7 +39,10 @@ export default function Header({isAuth}:ISAuth) {
                         <li className="nav__item">
                             {
                                 isAuth 
-                                    ? <Button type='primary'>log out</Button>
+                                    ? <AuthHeader>
+                                        <Button onClick={onLogOut} type='primary'>log out</Button>
+                                        <Avatar size={40}>{username}</Avatar>
+                                    </AuthHeader>
                                     : <Button style={styles} type='primary' ghost><Link to="/login/" >log in</Link></Button>
                             }
                         </li>
@@ -41,6 +51,9 @@ export default function Header({isAuth}:ISAuth) {
             </Container>
     )
 }
+
+export default observer(Header);
+
 const Container = styled.div`
     display: flex;
     justify-content: space-between;
@@ -60,6 +73,10 @@ const Ul = styled.ul`
     display: flex;
     justify-content: space-around;
     .nav__item {
+        display: inline-grid;
+        grid-auto-flow: column;
+        column-gap: 0.7em;
+        align-items: center;
         border: 1px solid #101010;
         border-radius: 10px;
         line-height: 2rem;

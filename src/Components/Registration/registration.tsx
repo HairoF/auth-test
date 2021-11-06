@@ -1,42 +1,65 @@
 import * as React from 'react';
-// import { useRef } from 'react';
+import { useState, useContext } from 'react';
+
 import { Link } from 'react-router-dom';
+
 import styled from 'styled-components';
-import { Form, Input, Button } from 'antd';
-import { MailOutlined, LockOutlined } from '@ant-design/icons';
 
 
-export default function Registration() {
-    // let contain = useRef<HTMLInputElement & Input>(null)
+import { Form, Input, Button, Alert } from 'antd';
+import { UserOutlined, LockOutlined } from '@ant-design/icons';
 
-    function onButtonClick(value:string): void {
-        
-    }
+import validate from '../helpers/index';
+import { observer } from 'mobx-react-lite';
+
+import { Context } from '../../index';
+
+function Registration() {
+    const [username, setUserName] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+
+    const { store } = useContext(Context);
+    const { registerMessage, loginError } = store;
 
     return (
         <Regis className="regis">
             <Form
+                onFinish={() => store.registration(username, password)}
                 name="normal_login"
-                className="login-form"
+                className="login-form login-form__relative"
                 initialValues={{ remember: true }}
             >
+            {
+                loginError.error
+                    ? <Alert
+                        style={{ position: 'absolute', top: '-65px', width: '100%' }}
+                        message={registerMessage ? registerMessage : loginError.message}
+                        type={registerMessage ? 'success' : 'error'}
+                    />
+                    : null
+            }
                 <Form.Item
-                    name="email"
+                    name="username"
                     rules={[
                         {
-                            type: 'email',
-                            message: 'The input is not valid E-mail!',
+                            type: 'string',
+                            message: 'The input is not valid Username!',
                         },
-                        { required: true, message: 'Please input your Username!' }
+                        { required: true, message: 'Please input your Username!' },
+                        () => ({
+                            validator(_, value) {
+                                if (!value || validate('username', username)) {
+                                    return Promise.resolve();
+                                }
+                                return Promise.reject(new Error('Name should be longer than 4 simbols'));
+                            },
+                        }),
                     ]}
                 >
-                    <Input 
-                        onChange={(field)=> {
-                            onButtonClick(field.target.value)
-                            
-                        }}
-                        prefix={<MailOutlined className="site-form-item-icon" />} 
-                        placeholder="Email"
+                    <Input
+                        onChange={event => setUserName(event.target.value)}
+                        prefix={<UserOutlined className="site-form-item-icon" />}
+                        placeholder="Username"
                     />
                 </Form.Item>
                 <Form.Item
@@ -46,6 +69,7 @@ export default function Registration() {
                     ]}
                 >
                     <Input.Password
+                        onChange={event => setPassword(event.target.value)}
                         prefix={<LockOutlined className="site-form-item-icon" value='hey' />}
                         type="password"
                         placeholder="Passwordd"
@@ -70,22 +94,24 @@ export default function Registration() {
                         }),
                     ]}
                 >
-                    <Input 
+                    <Input
                         prefix={<LockOutlined className="site-form-item-icon" value='hey' />}
-                        type='password' 
+                        type='password'
                         placeholder="Confirm Password"
                     />
                 </Form.Item>
                 <Form.Item style={{ textAlign: "center" }}>
                     <Link to="/login/" className="link link__auth">already registred?</Link>
-                    <Button  type="primary" htmlType="submit" className="login-form-button">
+                    <Button type="primary" htmlType="submit" className="login-form-button">
                         Sign up
                     </Button>
                 </Form.Item>
             </Form>
         </Regis>
     )
-}
+};
+
+export default observer(Registration);
 
 const Regis = styled.div`
     height: 100%;
@@ -99,5 +125,8 @@ const Regis = styled.div`
     }
     .link__auth {
         margin: 10px auto;
+    }
+    .login-form__relative {
+        position: relative;
     }
 `;

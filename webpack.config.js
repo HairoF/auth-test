@@ -2,10 +2,28 @@ const path = require('path');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const {BundleAnalyzerPlugin} = require('webpack-bundle-analyzer');
+const TerserWebpackPlugin = require('terser-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 const isDev = process.env.NODE_ENV === 'development';
 const isProd = !isDev;
-
+console.log(isProd);
+const optimization = () => {
+    const config = {
+      splitChunks: {
+        chunks: 'all'
+      }
+    }
+    if (isProd) {
+        config.minimizer = [
+          new CssMinimizerPlugin(),
+          new TerserWebpackPlugin()
+        ]
+      }
+    
+    return config
+}
 
 const filename = ext => isDev ? `[name].${ext}` : `[name].[hash].${ext}`;
 
@@ -41,28 +59,13 @@ const cssLoaders = extra => {
     return loaders;
 };
 
-module.exports = {
-    mode: 'development',
-    context: path.resolve(__dirname, 'src'),
-    entry: {
-        index: ['@babel/polyfill','./index.tsx']
-    },
-    devServer: {
-        hot: true,
-        static:  './dist'
-    },
-    devtool: 'inline-source-map',
-    output: {
-        filename: filename('js'),
-        path: path.resolve(__dirname, 'dist'),
-        clean: true,
-    },
-    resolve: {
-        extensions: ['.ts', '.tsx', '.js', '.jsx'],
-    },
-    plugins: [
+const plugins = () => {
+    const base = [
         new HTMLWebpackPlugin({
-            template: '../public/index.html'
+            template: '../public/index.html',
+            minify: {
+                collapseWhitespace: isProd
+            }
         }),
         new MiniCssExtractPlugin({
             filename: filename('css')
@@ -79,7 +82,37 @@ module.exports = {
                 },
             ]
         })
-    ],
+    ]
+
+    if(isProd) {
+        base.push(new BundleAnalyzerPlugin())
+    }
+
+    return base
+}
+
+module.exports = {
+    mode: 'development',
+    context: path.resolve(__dirname, 'src'),
+    entry: {
+        index: ['./index.tsx']
+    },
+    devServer: {
+        hot: isDev,
+        static:  './dist',
+        port: 8081
+    },
+    devtool: isProd ? 'hidden-source-map' : 'source-map',
+    optimization: optimization(),
+    output: {
+        filename: filename('js'),
+        path: path.resolve(__dirname, 'dist'),
+        clean: true,
+    },
+    resolve: {
+        extensions: ['.ts', '.tsx', '.js', '.jsx'],
+    },
+    plugins: plugins(),
     module: {
         rules: [
             {
@@ -99,12 +132,19 @@ module.exports = {
             },
             {
                 test: /\.tsx?$/,
+                exclude: {
+                    and: [/node_modules/], 
+                    not: [
+                      /mobx/,
+                      /mobx-react-lite/
+                    ]
+                  },
                 use: {
                     loader:'babel-loader',
                     options: babelOptions('@babel/preset-typescript')
                 },
-                exclude: /node_modules/,
             }
         ]
     },
+
 }

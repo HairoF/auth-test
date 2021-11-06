@@ -1,23 +1,19 @@
 import * as React from 'react';
-import { Image } from 'antd';
+import { Image,Card } from 'antd';
 
+const { Meta } = Card;
 
+export default function About({ data }: any) {
 
-export default function About({data}:any) {
-
-    let {avatar, about, id, username} = data
+    let { avatar, about, id, username } = data
 
     return (
-        <div
-            style={{textAlign: 'center'}}
+        <Card
+            hoverable
+            style={{ width: 240, margin: '0 auto', marginTop: '30px', }}
+            cover={<Image src={avatar}/>}
         >
-            <p>{id}: {username}</p>
-            <Image
-                width={200}
-                src={avatar}
-            />
-            <p>{about}</p>
-        </div>
-
+            <Meta style={{color: '#1f1f1f', textAlign: 'justify'}} title={`Username: ${username}`} description={about} />
+        </Card>
     )
 }

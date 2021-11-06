@@ -1,31 +1,40 @@
 import * as React from 'react';
-import {useState, useContext} from 'react';
+import {useState, useContext, useEffect} from 'react';
 
 import {Link} from 'react-router-dom';
 
 import styled from 'styled-components';
 
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, Alert } from 'antd';
 import { LockOutlined, UserOutlined} from '@ant-design/icons';
 
 import {Context} from '../../index';
 import { observer } from 'mobx-react-lite';
 
-function validate(type:string,str: string):boolean {
-    if(type === 'username') {
-        return str.length >= 4 ? true : false
-    } else {
-        return str.length >= 3 ? true : false
-    }
+import validate from '../helpers/index';
+
+const alertStyle = {
+    marginBottom: '10px'
 }
 
 function Login() {
     const [username, setUserName] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const {store} = useContext(Context)
+    const {error, message} = store.loginError;
+
+    useEffect(()=> {
+        console.log('login re-render',store.isAuth);
+        
+    },[error])
 
     return (
         <Autht className="auth">
+        {
+            error
+                ? <div style={alertStyle}><Alert message={message} type="error" /></div>
+                : null
+        }
         <Form
             onFinish={()=> store.login(username, password)}
             name="normal_login"
@@ -58,7 +67,7 @@ function Login() {
                 name="password"
                 rules={[
                     { required: true, message: 'Please input your Password!' },
-
+                    
                 ]}
             >
                 <Input
@@ -91,6 +100,7 @@ const Autht = styled.div`
     height: 100%;
     width: 100%;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 
