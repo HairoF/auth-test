@@ -1,14 +1,14 @@
 import * as React from 'react';
-import  {useEffect, useContext} from 'react';
+import  {useState, useEffect, useContext} from 'react';
 import {BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 
 import './app.css';
-import styled from 'styled-components';
 
 import { Layout } from "antd";
 const { Header: AntHeader,  Content } = Layout;
 
 import Header from '../Header/header';
+import Preview from '../Preview/preview';
 import About from '../About/about';
 import Registration from '../Registration/registration';
 import Login from '../Login/login';
@@ -17,8 +17,17 @@ import {Context} from '../../index';
 import { observer } from 'mobx-react-lite';
 import {toJS} from 'mobx';
 
+const main = {
+    height:'100vh', 
+    display:'flex',
+    flexDirection:'column',
+    justifyContent:'center', 
+    alignItems:'center'
+} as React.CSSProperties
+
 function App() {
     const {store} = useContext(Context);
+    const [redirect, changeRedirect] = useState(false)
     const data = toJS(store.user);
     
     useEffect( () => {
@@ -36,6 +45,12 @@ function App() {
 
     },[store.isAuth])
 
+    function handleRedirect(bool:boolean) {
+        
+        changeRedirect(bool)
+        setTimeout(() => changeRedirect(false),2000)
+    }
+
 
 
     return (
@@ -43,17 +58,22 @@ function App() {
             <AntHeader >
             <Header isAuth={store.isAuth} onLogOut={store.logout} username={store.user.username}/>
             </AntHeader>
-            <Content style={{height:'100vh'}}>
+            <Content style={main}>
                 <Switch>
-                    <Route path="/" exact>
-                        <h1 style={{margin:'0 auto', textAlign:'center'}}>
-                            About
-                        </h1>
-                        {!store.isAuth ? <P>Авторизуйтесь</P> : null}
+                    <Route path="/about">
+                        {!store.isAuth ? <Redirect to='/'/> : null}
                         {store.isAuth ? <About data={data}/> : null}
                     </Route>
+                    <Route path="/" exact>
+                        <Preview isAuth={store.isAuth}/>
+                    </Route>
                     <Route path="/register/" exact>
-                        <Registration/>
+                    {
+                        redirect
+                            ? <Redirect to='/login'/> 
+                            : <Registration redirect={handleRedirect}/>
+                    }
+
                     </Route>
                     <Route path="/login/" exact>
                     {
@@ -70,12 +90,3 @@ function App() {
 
 export default observer(App);
 
-const P = styled.p`
-    width: 100px;
-    text-align:center;
-    margin: 0 auto;
-    text-shadow: 1px 1px 1px red;
-    border-bottom: 1px solid grey;
-    border-top: 1px solid grey;
-
-`;
