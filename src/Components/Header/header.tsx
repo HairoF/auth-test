@@ -28,6 +28,9 @@ function Header({isAuth, onLogOut, username}:ISAuth) {
                 </Link>
                 <Nav className="nav header__nav">
                     <Ul className="nav__block">
+                        <li className="nav__item nav__item--rightSpace">
+                            <Button style={styles} type='primary'><Link to="/about/">About</Link></Button>
+                        </li>
                         {
                         !isAuth 
                             ? (<li className="nav__item">
@@ -65,7 +68,7 @@ const Container = styled.div`
     }
 `;
 const Nav = styled.nav`
-    flex: 0 1 20%;
+    flex: 0 1 30%;
     align-self: center;
 `;
 
@@ -80,6 +83,10 @@ const Ul = styled.ul`
         border: 1px solid #101010;
         border-radius: 10px;
         line-height: 2rem;
+    }
+
+    .nav__item--rightSpace {
+        margin-right: 15px;
     }
     .nav__link {
         padding: 10px 10px;

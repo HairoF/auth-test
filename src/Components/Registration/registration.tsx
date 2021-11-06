@@ -14,23 +14,41 @@ import { observer } from 'mobx-react-lite';
 
 import { Context } from '../../index';
 
-function Registration() {
+interface Regis {
+    redirect: (bool:boolean) => void
+}
+
+function Registration({redirect}:Regis) {
+
     const [username, setUserName] = useState<string>('');
     const [password, setPassword] = useState<string>('');
 
     const { store } = useContext(Context);
     const { registerMessage, loginError } = store;
 
+    function handleSubmit() {
+        store.registration(username, password)
+            .then( (res)=> {
+              if(res) {
+                setTimeout(() => {
+                    redirect(true)
+                }, 1500);
+
+              }  
+            })
+    }
+    
+
     return (
         <Regis className="regis">
             <Form
-                onFinish={() => store.registration(username, password)}
+                onFinish={handleSubmit}
                 name="normal_login"
                 className="login-form login-form__relative"
                 initialValues={{ remember: true }}
             >
             {
-                loginError.error
+                registerMessage || loginError.error
                     ? <Alert
                         style={{ position: 'absolute', top: '-65px', width: '100%' }}
                         message={registerMessage ? registerMessage : loginError.message}
@@ -102,7 +120,11 @@ function Registration() {
                 </Form.Item>
                 <Form.Item style={{ textAlign: "center" }}>
                     <Link to="/login/" className="link link__auth">already registred?</Link>
-                    <Button type="primary" htmlType="submit" className="login-form-button">
+                    <Button 
+                        disabled={loginError.error}
+                        type="primary" 
+                        htmlType="submit" 
+                        className="login-form-button">
                         Sign up
                     </Button>
                 </Form.Item>

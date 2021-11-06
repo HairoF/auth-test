@@ -45,7 +45,7 @@ export default class Store {
     async login(username:string, password:string) {
         try {
             const response = await AuthService.login(username, password)
-
+            
             if(response.data.token) {
                 localStorage.setItem('token', response.data.token);
                 this.setAuth(true)
@@ -53,8 +53,9 @@ export default class Store {
 
 
         } catch (error) {   
-            console.log(error);
-            this.setLoginError(true, `${error.response.data.error}`)
+            console.log(error.response);
+            let message = error.response?.data.error ? error.response?.data.error : 'Connection Error'
+            this.setLoginError(true, `${message}`)
             setTimeout(() => this.setLoginError(false), 3000)
 
         }
@@ -65,12 +66,14 @@ export default class Store {
 
             if(response.data.message) {
                 this.setRegiserMessage(response.data.message)
-                setTimeout(() => this.setRegiserMessage(''), 2000)
+                setTimeout(() => this.setRegiserMessage(''), 3000)
             }
+            return this.registerMessage
         } catch (error) {
             console.log(error.response?.data?.error);
             this.setLoginError(true, `${error.response.data.error}`)
             setTimeout(() => this.setLoginError(false), 2000)
+            return null
         }
     }
 

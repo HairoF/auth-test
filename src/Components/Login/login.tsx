@@ -23,11 +23,6 @@ function Login() {
     const {store} = useContext(Context)
     const {error, message} = store.loginError;
 
-    useEffect(()=> {
-        console.log('login re-render',store.isAuth);
-        
-    },[error])
-
     return (
         <Autht className="auth">
         {
@@ -82,6 +77,7 @@ function Login() {
             <Form.Item style={{textAlign:"center"}}>
                 <Link to="/register/" className="link link__auth">register now</Link>
                 <Button 
+                    disabled={error}
                     type="primary" 
                     htmlType="submit" 
                     className="login-form-button submit__button"
