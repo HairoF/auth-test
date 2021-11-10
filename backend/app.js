@@ -7,11 +7,11 @@ const cors = require("cors");
 
 const app = express();
 
-// app.use(cors({
-//   credentials: true,
-//   origin: 'http://localhost:8081'
-// }));
-app.use(cors())
+app.use(cors({
+  credentials: true,
+  origin: 'http://localhost:8081'
+}));
+// app.use(cors())
 app.use(morgan("dev"));
 
 app.use(bodyParser.json());

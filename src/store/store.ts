@@ -1,22 +1,19 @@
-import { IUser } from "../models/IUser";
+import { User } from "../models/User";
 import LoginError from '../models/LoginError';
 import AuthService from "../services/AuthService";
 import AboutService from '../services/AboutService';
 
-import {makeAutoObservable} from 'mobx';
+import { makeAutoObservable } from 'mobx';
 
 
 export default class Store {
-    user = {} as IUser
+    user = {} as User
     isAuth = false
-
-    loginError:LoginError = {
+    loginError: LoginError = {
         error: false,
         message: null
     };
-
-    registerMessage:string = '';
-
+    registerMessage: string = '';
 
     constructor() {
         makeAutoObservable(this);
@@ -32,72 +29,73 @@ export default class Store {
         this.isAuth = bool;
     }
 
-    setUser(user: IUser) {
+    setUser(user: User) {
         this.user = user;
     }
-    setLoginError( err:boolean, message: null|string = null ) {
-        this.loginError = { error:err, message:message }
+
+    async setLoginError(err: boolean, message: null | string = null) {
+        this.loginError = { error: err, message: message }
     }
-    setRegiserMessage(message:string) {
+
+    setRegiserMessage(message: string) {
         this.registerMessage = message;
     }
 
-    async login(username:string, password:string) {
+    async login(username: string, password: string) {
         try {
             const response = await AuthService.login(username, password)
-            
-            if(response.data.token) {
+            if (response.data.token) {
                 localStorage.setItem('token', response.data.token);
                 this.setAuth(true)
             }
-
-
-        } catch (error) {   
-            console.log(error.response);
-            let message = error.response?.data.error ? error.response?.data.error : 'Connection Error'
-            this.setLoginError(true, `${message}`)
-            setTimeout(() => this.setLoginError(false), 3000)
-
+        } catch (error) {
+            console.log(error.response.status);
+            if (error?.response?.status === 401) {
+                this.setLoginError(true, `${error.response?.data.error}`)
+            } else {
+                this.setLoginError(true, `Ошибка сервера. Попробуйте позже`)
+            }
         }
     }
-    async registration(username:string, password:string) {
+
+    async registration(username: string, password: string) {
         try {
             const response = await AuthService.registration(username, password)
-
-            if(response.data.message) {
+            if (response.data.message && response.status === 200) {
                 this.setRegiserMessage(response.data.message)
                 setTimeout(() => this.setRegiserMessage(''), 3000)
+            } else {
+                throw new Error('Ошибка при регистрации');
             }
             return this.registerMessage
         } catch (error) {
-            console.log(error.response?.data?.error);
-            this.setLoginError(true, `${error.response.data.error}`)
-            setTimeout(() => this.setLoginError(false), 2000)
-            return null
+            console.log(error?.response.status);
+            if (error.response?.status === 400) {
+                await this.setLoginError(true, `${error.response.data.error}`)
+                return null
+            } else {
+                await this.setLoginError(true, `Ошибка сервера. Попробуйте позже`)
+                return null
+            }
         }
     }
 
     async checkAuth() {
         try {
-            let response = await AboutService.fetchAbout()
-            console.log(response);
-            
-            if(response.data.data) {
+            let response = await AboutService.fetchAbout();
+            if (response.data.data) {
                 this.setAuth(true);
                 this.setUser(response.data.data)
             }
         } catch (error) {
             console.log(error);
-            
         }
     }
 
     async logout() {
         try {
-            console.log(this);
-            
             this.setAuth(false);
-            this.setUser({} as IUser)
+            this.setUser({} as User)
             localStorage.removeItem('token');
         } catch (error) {
             console.log(error);

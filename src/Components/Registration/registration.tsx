@@ -3,11 +3,10 @@ import { useState, useContext } from 'react';
 
 import { Link } from 'react-router-dom';
 
-import styled from 'styled-components';
-
-
-import { Form, Input, Button, Alert } from 'antd';
+import { Form, Input, Button } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+
+import { Regis, MyAlert } from './registration-style';
 
 import validate from '../helpers/index';
 import { observer } from 'mobx-react-lite';
@@ -15,47 +14,47 @@ import { observer } from 'mobx-react-lite';
 import { Context } from '../../index';
 
 interface Regis {
-    redirect: (bool:boolean) => void
+    redirect: (bool: boolean) => void
 }
 
-function Registration({redirect}:Regis) {
+function Registration({ redirect }: Regis) {
 
     const [username, setUserName] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-
     const { store } = useContext(Context);
     const { registerMessage, loginError } = store;
 
     function handleSubmit() {
         store.registration(username, password)
-            .then( (res)=> {
-              if(res) {
+            .then((res) => {
+                if (res) {
+                    setTimeout(() => {
+                        redirect(true)
+                    }, 1500);
+                }
+            })
+            .then(() => {
                 setTimeout(() => {
-                    redirect(true)
+                    store.setLoginError(false)
                 }, 1500);
-
-              }  
             })
     }
-    
 
     return (
-        <Regis className="regis">
+        <Regis>
             <Form
                 onFinish={handleSubmit}
                 name="normal_login"
                 className="login-form login-form__relative"
                 initialValues={{ remember: true }}
             >
-            {
-                registerMessage || loginError.error
-                    ? <Alert
-                        style={{ position: 'absolute', top: '-65px', width: '100%' }}
+                {registerMessage || loginError.error
+                    ? <MyAlert
                         message={registerMessage ? registerMessage : loginError.message}
                         type={registerMessage ? 'success' : 'error'}
                     />
                     : null
-            }
+                }
                 <Form.Item
                     name="username"
                     rules={[
@@ -118,13 +117,14 @@ function Registration({redirect}:Regis) {
                         placeholder="Confirm Password"
                     />
                 </Form.Item>
-                <Form.Item style={{ textAlign: "center" }}>
+                <Form.Item>
                     <Link to="/login/" className="link link__auth">already registred?</Link>
-                    <Button 
+                    <Button
                         disabled={loginError.error}
-                        type="primary" 
-                        htmlType="submit" 
-                        className="login-form-button">
+                        type="primary"
+                        htmlType="submit"
+                        className="submit__button"
+                    >
                         Sign up
                     </Button>
                 </Form.Item>
@@ -134,21 +134,3 @@ function Registration({redirect}:Regis) {
 };
 
 export default observer(Registration);
-
-const Regis = styled.div`
-    height: 100%;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    .link {
-        display: block
-    }
-    .link__auth {
-        margin: 10px auto;
-    }
-    .login-form__relative {
-        position: relative;
-    }
-`;
